@@ -1,102 +1,105 @@
 # Automated Litter Detection System
 
-A prototype Flask web app for detecting litter, garbage, and street hazards in uploaded images. The app uses Google Gemini for AI analysis, extracts GPS location from image EXIF metadata, and displays alerts on a Leaflet map.
+A prototype Flask application that detects litter, waste, or dead-animal hazards in uploaded images using Google Gemini. The app extracts GPS metadata from images, displays detected issues on a Leaflet map, and shows a dashboard of recent alerts.
 
 ## Features
 
-- Upload a photo from a browser
-- AI-based analysis for garbage / litter / dead animal detection
-- Extract GPS from image EXIF metadata
-- Store recent alerts in-memory for prototype review
-- Live Leaflet map with location markers for detected issues
-- Frontend dashboard with alert summary and response details
+- Upload an image from a browser
+- AI-based detection for garbage, litter, and dead animals
+- Structured alert generation with severity and status
+- Extract GPS coordinates from EXIF metadata
+- Live Leaflet map with detected issue markers
+- In-memory alert history for prototype review
+- Responsive dashboard with latest analysis output
 
-## Project structure
+## Repository structure
 
-- `code/app.py` - Flask backend application
-- `code/index.html` - Frontend dashboard and map UI
-- `code/uploads/` - Saved uploaded image files
-- `requirements.txt` - Python dependency list
-- `.env` - Environment variables for Gemini API key
+- `code/app.py` - Flask backend and Gemini integration
+- `code/index.html` - Frontend dashboard, upload form, and map UI
+- `code/uploads/` - Stored uploaded images
+- `requirements.txt` - Python dependencies
+- `.env` - Local environment variables for API keys
 
-## Prerequisites
+## Getting started
+
+### Prerequisites
 
 - Python 3.8 or newer
-- Internet access for Gemini API calls and OpenStreetMap tiles
+- Internet access for Google Gemini API and OpenStreetMap tiles
 - Google Gemini API key
 
-## Installation
+### Install dependencies
 
-1. Open a terminal in the project folder:
-   ```powershell
-   cd "d:/vaibhav gupta/Coding/PROJECTS/Automated Litter Detection/Automated-Litter--detection-System/code"
-   ```
+Open a terminal in the repository root and run:
 
-2. Create and activate a virtual environment:
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
+```powershell
+cd "d:/vaibhav gupta/Coding/PROJECTS/Automated Litter Detection/Automated-Litter--detection-System/code"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r ..\requirements.txt
+```
 
-3. Install dependencies:
-   ```powershell
-   pip install -r ..\requirements.txt
-   ```
+### Configure environment
 
-## Configuration
+Create a `.env` file inside the `code/` folder with:
 
-1. Create a `.env` file in the `code` folder if it does not already exist.
-2. Add your Gemini API key to `.env`:
-   ```ini
-   GEMINI_API_KEY=your_real_api_key_here
-   ```
+```ini
+GEMINI_API_KEY=your_real_api_key_here
+```
 
-## Running the app
+### Run locally
 
-From the `code` directory, start the Flask app:
+From the `code/` directory:
 
 ```powershell
 python app.py
 ```
 
-Open the browser at `http://127.0.0.1:5000`.
+Then open:
 
-## How to use
+```
+http://127.0.0.1:5000
+```
 
-1. Navigate to the homepage.
-2. Upload an image containing street litter, trash, or other hazards.
-3. The prototype will analyze the image and return a structured result.
-4. If location EXIF data exists, the app will place a marker on the map.
-5. Recent alerts appear in the dashboard panel and are available via `/alerts`.
+## Usage
+
+1. Open the homepage.
+2. Select an image file.
+3. Click **Analyze Image**.
+4. Review the generated alert output and map marker.
+5. Recent alerts appear in the dashboard and are available at `/alerts`.
 
 ## API endpoints
 
-- `GET /` - Load the frontend dashboard
-- `POST /upload` - Upload an image and analyze it
-- `GET /alerts` - Get the current in-memory alert list
+- `GET /` — Load the frontend dashboard
+- `POST /upload` — Upload an image and receive detection results
+- `GET /alerts` — Retrieve current in-memory alerts
 
 ## Notes
 
-- GPS EXIF metadata is required for map pin placement.
-- Alerts are stored only in memory and reset when the server restarts.
-- The app is a prototype and not production hardened.
-- The frontend uses Leaflet and OpenStreetMap tiles for mapping.
+- The location map marker is only available when the uploaded image includes GPS EXIF metadata.
+- Alerts are stored in memory and will be reset if the server restarts.
+- This repository is intended as a prototype, not a production system.
 
 ## Troubleshooting
 
 - `RuntimeError: Set GEMINI_API_KEY in .env before starting the app.`
-  - Ensure `.env` exists and contains `GEMINI_API_KEY`.
+  - Add `GEMINI_API_KEY` to the `code/.env` file.
 - `No file uploaded` / `No selected file`
-  - Make sure you choose a valid image before submitting.
-- No marker appears on the map
-  - The uploaded photo likely lacks GPS EXIF coordinates.
-- Gemini API failures
-  - Check the API key and network connectivity.
+  - Ensure you choose a valid image before submitting.
+- No marker is displayed on the map
+  - The image likely does not contain GPS EXIF location data.
+- Gemini API request errors
+  - Verify your Gemini API key and network connectivity.
 
-## Future improvements
+## Improvements
 
-- Persist alerts to a database instead of memory
-- Add image preview and multiple-upload support
-- Add user authentication for cleanup teams
-- Improve AI prompt quality and custom training
-- Add dark mode and better mobile responsiveness
+- Persist alerts using SQLite or another database
+- Add an image preview before upload
+- Improve upload validation and duplicate filename handling
+- Add a dark theme and better mobile responsiveness
+- Add unit tests and CI validation
+
+## License
+
+This project is released under the MIT License.
