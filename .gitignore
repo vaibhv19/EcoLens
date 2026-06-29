@@ -1,0 +1,16 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment files
+.env
+
+# Upload storage
+code/uploads/
+
+# VS Code settings
+.vscode/
+
+# Windows thumbnails
+Thumbs.db
+desktop.ini

@@ -1,25 +1,29 @@
 # Automated Litter Detection System
 
-A simple Flask web app that detects garbage in uploaded images using Google Gemini, extracts GPS location from image EXIF metadata, and displays detection results on a Leaflet map.
+A prototype Flask web app for detecting litter, garbage, and street hazards in uploaded images. The app uses Google Gemini for AI analysis, extracts GPS location from image EXIF metadata, and displays alerts on a Leaflet map.
 
 ## Features
 
-- Upload an image using a browser form
-- Use Gemini API to classify whether the image contains garbage or waste
-- Extract GPS coordinates from image EXIF metadata
-- Display detection status and location on a Leaflet map
+- Upload a photo from a browser
+- AI-based analysis for garbage / litter / dead animal detection
+- Extract GPS from image EXIF metadata
+- Store recent alerts in-memory for prototype review
+- Live Leaflet map with location markers for detected issues
+- Frontend dashboard with alert summary and response details
 
 ## Project structure
 
 - `code/app.py` - Flask backend application
-- `code/index.html` - Frontend page with upload form and Leaflet map
-- `code/uploads/` - Folder where uploaded images are saved
+- `code/index.html` - Frontend dashboard and map UI
+- `code/uploads/` - Saved uploaded image files
+- `requirements.txt` - Python dependency list
+- `.env` - Environment variables for Gemini API key
 
 ## Prerequisites
 
 - Python 3.8 or newer
-- Internet access for Gemini API requests and OpenStreetMap tiles
-- A Google Gemini API key
+- Internet access for Gemini API calls and OpenStreetMap tiles
+- Google Gemini API key
 
 ## Installation
 
@@ -34,54 +38,65 @@ A simple Flask web app that detects garbage in uploaded images using Google Gemi
    .\.venv\Scripts\Activate.ps1
    ```
 
-3. Install required packages:
+3. Install dependencies:
    ```powershell
-   pip install flask google-generativeai pillow exifread
+   pip install -r ..\requirements.txt
    ```
 
 ## Configuration
 
-1. Open `code/app.py`.
-2. Replace `YOUR_API_KEY` in the Gemini configuration section with your actual API key:
-   ```python
-   genai.configure(api_key="YOUR_API_KEY")
+1. Create a `.env` file in the `code` folder if it does not already exist.
+2. Add your Gemini API key to `.env`:
+   ```ini
+   GEMINI_API_KEY=your_real_api_key_here
    ```
 
 ## Running the app
 
-From the `code` directory, run:
+From the `code` directory, start the Flask app:
 
 ```powershell
 python app.py
 ```
 
-The app will start in debug mode and listen on `http://127.0.0.1:5000`.
+Open the browser at `http://127.0.0.1:5000`.
 
-## Using the app
+## How to use
 
-1. Open `http://127.0.0.1:5000` in a browser.
-2. Select an image file and click **Upload & Detect**.
-3. The app will return JSON with:
-   - `status`: whether garbage was detected
-   - `description`: Gemini's response
-   - `lat` and `lon`: extracted GPS coordinates (if available)
-4. If garbage is detected and GPS data exists, the map will center on the photo location and show a marker.
+1. Navigate to the homepage.
+2. Upload an image containing street litter, trash, or other hazards.
+3. The prototype will analyze the image and return a structured result.
+4. If location EXIF data exists, the app will place a marker on the map.
+5. Recent alerts appear in the dashboard panel and are available via `/alerts`.
+
+## API endpoints
+
+- `GET /` - Load the frontend dashboard
+- `POST /upload` - Upload an image and analyze it
+- `GET /alerts` - Get the current in-memory alert list
 
 ## Notes
 
-- The image must contain GPS EXIF metadata for the map marker to work.
-- If the uploaded image has no location data, the app still returns detection results but cannot plot a map marker.
-- The app currently uses Gemini to classify images and is not optimized for production usage.
+- GPS EXIF metadata is required for map pin placement.
+- Alerts are stored only in memory and reset when the server restarts.
+- The app is a prototype and not production hardened.
+- The frontend uses Leaflet and OpenStreetMap tiles for mapping.
 
 ## Troubleshooting
 
-- `No file uploaded` / `No selected file`: ensure you choose a valid image file.
-- `alert("No GPS data found in image...")`: the uploaded image has no GPS EXIF metadata.
-- Gemini API errors: verify the API key and network connectivity.
+- `RuntimeError: Set GEMINI_API_KEY in .env before starting the app.`
+  - Ensure `.env` exists and contains `GEMINI_API_KEY`.
+- `No file uploaded` / `No selected file`
+  - Make sure you choose a valid image before submitting.
+- No marker appears on the map
+  - The uploaded photo likely lacks GPS EXIF coordinates.
+- Gemini API failures
+  - Check the API key and network connectivity.
 
-## Optional improvement ideas
+## Future improvements
 
-- Add a `requirements.txt` for dependency management
-- Secure the API key via environment variables
-- Support multiple image uploads and history tracking
-- Deploy with a production-ready WSGI server
+- Persist alerts to a database instead of memory
+- Add image preview and multiple-upload support
+- Add user authentication for cleanup teams
+- Improve AI prompt quality and custom training
+- Add dark mode and better mobile responsiveness

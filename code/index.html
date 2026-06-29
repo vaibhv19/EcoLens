@@ -1,48 +1,405 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Garbage Detection with Gemini + Leaflet</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>City Cleanup Alert Prototype</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
-    #map { height: 400px; margin-top: 20px; }
+    :root {
+      color-scheme: light;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #102a43;
+      background: #f1f5f9;
+      line-height: 1.6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+
+    header {
+      padding: 32px 24px;
+      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      color: white;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: -0.04em;
+    }
+
+    header p {
+      max-width: 760px;
+      margin: 16px auto 0;
+      font-size: 1rem;
+      color: #cbd5e1;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 24px;
+    }
+
+    .hero-grid {
+      grid-template-columns: 1.3fr 0.9fr;
+      align-items: start;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.35rem;
+      color: #0f172a;
+    }
+
+    .panel p.lead {
+      margin: 0;
+      color: #475569;
+    }
+
+    .upload-card {
+      display: grid;
+      gap: 16px;
+    }
+
+    .upload-card input[type=file] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      cursor: pointer;
+      color: #0f172a;
+    }
+
+    .upload-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .upload-actions button {
+      padding: 14px 22px;
+      border-radius: 16px;
+      border: none;
+      background: #0f172a;
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .upload-actions button:hover {
+      transform: translateY(-1px);
+      background: #1e293b;
+    }
+
+    #statusMessage {
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: #e2e8f0;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      min-height: 48px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 18px 20px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.5rem;
+      color: #0f172a;
+    }
+
+    .metric span {
+      color: #475569;
+      font-size: 0.95rem;
+    }
+
+    #map {
+      height: 520px;
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    #alerts {
+      display: grid;
+      gap: 16px;
+    }
+
+    .alert-card {
+      padding: 18px 22px;
+      border-radius: 20px;
+      background: #f8fafc;
+      border-left: 5px solid #f97316;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .alert-card.high {
+      border-left-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .alert-card.medium {
+      border-left-color: #f97316;
+      background: #fff7ed;
+    }
+
+    .alert-card.low {
+      border-left-color: #10b981;
+      background: #ecfdf5;
+    }
+
+    .alert-card small {
+      display: block;
+      margin-top: 10px;
+      color: #64748b;
+    }
+
+    .alert-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .alert-pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    pre {
+      background: #020617;
+      color: #e2e8f0;
+      padding: 20px;
+      border-radius: 20px;
+      overflow-x: auto;
+      max-height: 360px;
+    }
+
+    .secondary-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .secondary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 28px 16px;
+      }
+
+      .container {
+        padding: 16px;
+      }
+
+      .metric-row {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>Garbage Detection System</h2>
-  <form id="uploadForm" enctype="multipart/form-data">
-    <input type="file" name="file" required><br><br>
-    <button type="submit">Upload & Detect</button>
-  </form>
+  <header>
+    <h1>City Cleanup Alert Prototype</h1>
+    <p>Use camera imagery to identify garbage, litter, and street hazards. This prototype converts detection into alerts, location markers, and cleanup action items.</p>
+  </header>
 
-  <p id="result"></p>
-  <div id="map"></div>
+  <div class="container">
+    <div class="grid hero-grid">
+      <section class="panel upload-card">
+        <h2>Analyze Image</h2>
+        <p class="lead">Upload a photo from a city camera or smartphone to generate a cleanup alert and mark the location on the map.</p>
+        <form id="uploadForm" enctype="multipart/form-data">
+          <input type="file" name="file" accept="image/*" required />
+          <div class="upload-actions">
+            <button type="submit">Analyze Image</button>
+            <span class="alert-pill">Prototype Mode</span>
+          </div>
+        </form>
+        <div id="statusMessage">Ready to detect site issues.</div>
+
+        <div class="metric-row">
+          <div class="metric">
+            <strong id="totalAlerts">0</strong>
+            <span>Total Alerts</span>
+          </div>
+          <div class="metric">
+            <strong id="activeLocations">0</strong>
+            <span>Locations Marked</span>
+          </div>
+          <div class="metric">
+            <strong id="lastScan">--</strong>
+            <span>Last Scan</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Live Map</h2>
+        <p class="lead">Map highlights the latest detected issues, so cleanup teams can easily locate them.</p>
+        <div id="map"></div>
+      </section>
+    </div>
+
+    <div class="secondary-grid">
+      <section class="panel">
+        <h2>Recent Alerts</h2>
+        <div id="alerts"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Latest Analysis</h2>
+        <p class="lead">Inspect the latest result returned by the AI detector.</p>
+        <pre id="result">Ready to analyze an image.</pre>
+      </section>
+    </div>
+  </div>
 
   <script>
-    const map = L.map('map').setView([20.5937, 78.9629], 5); // India default view
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+    const markers = [];
 
-    document.getElementById("uploadForm").onsubmit = async function(e) {
+    function setMetrics(alerts) {
+      document.getElementById('totalAlerts').textContent = alerts.length;
+      document.getElementById('activeLocations').textContent = alerts.filter(a => a.lat && a.lon).length;
+      const latest = alerts[0];
+      document.getElementById('lastScan').textContent = latest ? new Date(latest.timestamp).toLocaleTimeString() : '--';
+    }
+
+    async function loadAlerts() {
+      const response = await fetch('/alerts');
+      const data = await response.json();
+      const alertsContainer = document.getElementById('alerts');
+      alertsContainer.innerHTML = '';
+
+      if (!data.alerts.length) {
+        alertsContainer.innerHTML = '<p>No active alerts yet.</p>';
+        setMetrics([]);
+        return;
+      }
+
+      setMetrics(data.alerts);
+
+      data.alerts.forEach(alert => {
+        const card = document.createElement('div');
+        card.className = `alert-card ${alert.severity}`;
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div>
+              <strong>${alert.type.toUpperCase()}</strong>
+              <p style="margin: 8px 0 0; color: #475569;">${alert.description}</p>
+            </div>
+            <span class="alert-pill">${alert.severity.toUpperCase()}</span>
+          </div>
+          <p style="margin: 14px 0 4px; color: #334155;"><strong>Status:</strong> ${alert.status}</p>
+          <p style="margin: 0; color: #475569;"><strong>Location:</strong> ${alert.lat || 'Unknown'}, ${alert.lon || 'Unknown'}</p>
+          <small>${new Date(alert.timestamp).toLocaleString()}</small>
+        `;
+        alertsContainer.appendChild(card);
+      });
+    }
+
+    function clearMarkers() {
+      markers.forEach(marker => map.removeLayer(marker));
+      markers.length = 0;
+    }
+
+    function addMarker(lat, lon, text) {
+      if (!lat || !lon) return;
+      const marker = L.marker([lat, lon]).addTo(map).bindPopup(text);
+      marker.openPopup();
+      markers.push(marker);
+    }
+
+    function markAllAlerts(alerts) {
+      clearMarkers();
+      alerts.forEach(alert => {
+        if (alert.lat && alert.lon) {
+          addMarker(alert.lat, alert.lon, `<strong>${alert.type.toUpperCase()}</strong><br>${alert.description}`);
+        }
+      });
+    }
+
+    document.getElementById('uploadForm').onsubmit = async function (e) {
       e.preventDefault();
       const formData = new FormData(this);
-      const response = await fetch("/upload", {
-        method: "POST",
+      const statusMessage = document.getElementById('statusMessage');
+      statusMessage.textContent = 'Analyzing image now...';
+
+      const response = await fetch('/upload', {
+        method: 'POST',
         body: formData
       });
       const data = await response.json();
-      document.getElementById("result").innerText = JSON.stringify(data, null, 2);
 
-      if (data.status === "Garbage Detected" && data.lat && data.lon) {
-        map.setView([data.lat, data.lon], 15);
-        L.marker([data.lat, data.lon]).addTo(map)
-          .bindPopup(`<b>${data.status}</b><br>${data.description}`)
-          .openPopup();
-      } else {
-        alert("No GPS data found in image. Try uploading a photo taken with GPS enabled.");
+      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+      statusMessage.textContent = data.message || 'Analysis complete.';
+      if (data.result) {
+        statusMessage.textContent = data.result.alert ? 'Alert created. Cleanup needed.' : 'No urgent cleanup alert.';
       }
-    }
+
+      if (data.result && data.result.lat && data.result.lon) {
+        map.setView([data.result.lat, data.result.lon], 15);
+      }
+
+      await loadAlerts();
+      const responseAlerts = await fetch('/alerts');
+      const allAlerts = await responseAlerts.json();
+      markAllAlerts(allAlerts.alerts);
+    };
+
+    loadAlerts();
   </script>
 </body>
 </html>
