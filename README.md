@@ -92,14 +92,6 @@ http://127.0.0.1:5000
 - Gemini API request errors
   - Verify your Gemini API key and network connectivity.
 
-## Improvements
-
-- Persist alerts using SQLite or another database
-- Add an image preview before upload
-- Improve upload validation and duplicate filename handling
-- Add a dark theme and better mobile responsiveness
-- Add unit tests and CI validation
-
 ## License
 
 This project is released under the MIT License.
