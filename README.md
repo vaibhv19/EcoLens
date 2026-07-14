@@ -1,4 +1,4 @@
-# Automated Litter Detection System
+# EcoLens
 
 A prototype Flask application that detects litter, waste, or dead-animal hazards in uploaded images using Google Gemini. The app extracts GPS metadata from images, displays detected issues on a Leaflet map, and shows a dashboard of recent alerts.
 
@@ -33,7 +33,7 @@ A prototype Flask application that detects litter, waste, or dead-animal hazards
 Open a terminal in the repository root and run:
 
 ```powershell
-cd "d:/vaibhav gupta/Coding/PROJECTS/Automated Litter Detection/Automated-Litter--detection-System/code"
+cd code
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r ..\requirements.txt
