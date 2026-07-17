@@ -2,6 +2,8 @@
 
 A prototype Flask application that detects litter, waste, or dead-animal hazards in uploaded images using Google Gemini. The app extracts GPS metadata from images, displays detected issues on a Leaflet map, and shows a dashboard of recent alerts.
 
+![EcoLens Dashboard Screenshot](screenshot.png)
+
 ## Features
 
 - Upload an image from a browser
